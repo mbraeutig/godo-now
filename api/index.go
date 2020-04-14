@@ -1,19 +1,20 @@
 package api
 
 import (
+	"fmt"
+	"io"
 	"net/http"
-	"os"
-
-	f "github.com/mbraeutig/faunadb-go/tree/release-2.11.0-semverfix/v2"
-
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
-	secret = os.Getenv("FAUNADB_SECRET")
-	adminClient := newAdminClient(secret)
-	io.WriteString(w, fmt.Sprintf("Client: %v", adminClient)
-}
+const index = "" +
+	`
+<html>
+	<h1>GoDo</h1>
+</html>
+`
 
-func newAdminClient(faunaSecret string) *f.FaunaClient {
-	return f.NewFaunaClient(faunaSecret)
+func Index(w http.ResponseWriter, r *http.Request) {
+	if _, err := io.WriteString(w, index); err != nil {
+		http.Error(w, fmt.Sprintf("Error writing response: %v", err), http.StatusInternalServerError)
+	}
 }
