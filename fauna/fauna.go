@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	// f "github.com/mbraeutig/faunadb-go/v2/faunadb"
 	f "github.com/mbraeutig/faunadb-v2/faunadb"
 )
 

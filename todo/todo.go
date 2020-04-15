@@ -7,7 +7,7 @@ import (
 type Todo struct {
 	Text     string `fauna:"text"`
 	Complete bool   `fauna:"complete"`
-	ID       string `fauna:"ref.ID"`
+	ID       string `fauna:"id"`
 }
 
 func Delete(client *f.FaunaClient, id string) error {
