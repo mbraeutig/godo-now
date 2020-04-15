@@ -1,24 +1,24 @@
 package todo
 
 import (
-	"log"
-
-	// f "github.com/mbraeutig/faunadb-go/v2/faunadb"
 	f "github.com/mbraeutig/faunadb-v2/faunadb"
 )
 
 type Todo struct {
 	Text     string `fauna:"text"`
 	Complete bool   `fauna:"complete"`
+	ID       string `fauna:"ref.ID"`
 }
 
 func Delete(client *f.FaunaClient, id string) error {
-	_, err := client.Query(f.Delete(f.RefCollection(f.Collection("todos"), id)))
+	_, err :=
+		client.Query(f.Delete(f.RefCollection(f.Collection("todos"), id)))
 	return err
 }
 
-func Get(client *f.FaunaClient, id string) (*Todo, error) {
-	result, err := client.Query(f.Get(f.RefCollection(f.Collection("todos"), id)))
+func Read(client *f.FaunaClient, id string) (*Todo, error) {
+	result, err :=
+		client.Query(f.Get(f.RefCollection(f.Collection("todos"), id)))
 	if err != nil {
 		return nil, err
 	}
@@ -29,13 +29,34 @@ func Get(client *f.FaunaClient, id string) (*Todo, error) {
 	return &t, nil
 }
 
-func GetAll(client *f.FaunaClient) ([]*Todo, error) {
-	todos := make([]*Todo, 0)
-	result, err := client.Query(f.Get(f.Collection("todos")))
+func ReadAll(client *f.FaunaClient) ([]*Todo, error) {
+	result, err :=
+		client.Query(
+			f.Map(f.Paginate(f.Match(f.Index("all_todos"))), f.Lambda("X", f.Get(f.Var("X")))))
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("%+v: ", result)
+
+	var elements f.ArrayV
+	result.At(f.ObjKey("data")).Get(&elements)
+
+	todos := make([]*Todo, 0)
+	for _, element := range elements {
+
+		var object f.ObjectV
+		element.At(f.ObjKey("data")).Get(&object)
+
+		var ref f.RefV
+		element.At(f.ObjKey("ref")).Get(&ref)
+
+		var t Todo
+		object.Get(&t)
+
+		t.ID = ref.ID
+
+		todos = append(todos, &t)
+	}
+
 	return todos, nil
 }
 
@@ -61,10 +82,16 @@ func Replace(client *f.FaunaClient, id string, todo Todo) error {
 }
 
 func Create(client *f.FaunaClient, todo Todo) (string, error) {
+	type createTodo struct {
+		Text     string
+		Complete bool
+	}
+	ct := createTodo{Text: todo.Text, Complete: todo.Complete}
+
 	v, err := client.Query(
 		f.Create(
 			f.Collection("todos"),
-			f.Obj{"data": todo},
+			f.Obj{"data": ct},
 		),
 	)
 	if err != nil {

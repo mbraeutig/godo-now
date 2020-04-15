@@ -21,7 +21,7 @@ func Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := fauna.Client()
-	t, err := todo.Get(c, id)
+	t, err := todo.Read(c, id)
 
 	if err != nil {
 		log.Println(err)

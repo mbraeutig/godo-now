@@ -8,7 +8,7 @@ import (
 	f "github.com/mbraeutig/faunadb-v2/faunadb"
 )
 
-var faunaSecret = os.Getenv("FAUNADB_SECRET")
+var faunaSecret = os.Getenv("FAUNA_ROOT_KEY")
 var adminClient *f.FaunaClient
 
 func newAdminClient(faunaSecret string) *f.FaunaClient {
