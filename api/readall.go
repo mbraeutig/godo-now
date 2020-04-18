@@ -10,11 +10,10 @@ import (
 )
 
 func ReadAll(w http.ResponseWriter, r *http.Request) {
-	c := fauna.Client()
-	all, err := todo.ReadAll(c)
+	ctx := context.Background()
+	all, err := todo.ReadAll(ctx, firestore.Client)
 
 	if err != nil {
-		log.Println(err)
 		util.SendNotFound(w, err)
 		return
 	}
@@ -25,5 +24,4 @@ func ReadAll(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("\n"))
 	}
 	w.Write([]byte("]"))
-
 }
